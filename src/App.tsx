@@ -14,6 +14,7 @@ import { ellipse, square, triangle } from 'ionicons/icons';
 import WishLists from './pages/WishLists';
 import Tab2 from './pages/Tab2';
 import Profile from './pages/Profile';
+import Start from './pages/Start';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -49,6 +50,9 @@ const App: React.FC = () => (
           </Route>
           <Route path="/profile">
             <Profile />
+          </Route>
+          <Route path="/start">
+            <Start />
           </Route>
           <Route exact path="/">
             <Redirect to="/wishlists" />
