@@ -12,7 +12,7 @@ import {
 import { IonReactRouter } from '@ionic/react-router';
 import { ellipse, square, triangle } from 'ionicons/icons';
 import WishLists from './pages/WishLists';
-import Tab2 from './pages/Tab2';
+import NewWishList from './pages/NewWishList';
 import Profile from './pages/Profile';
 import Start from './pages/Start';
 
@@ -45,8 +45,8 @@ const App: React.FC = () => (
           <Route exact path="/wishlists">
             <WishLists />
           </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
+          <Route exact path="/newWishList">
+            <NewWishList />
           </Route>
           <Route path="/profile">
             <Profile />
@@ -63,9 +63,9 @@ const App: React.FC = () => (
             <IonIcon aria-hidden="true" icon={triangle} />
             <IonLabel>Wish Lists</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
+          <IonTabButton tab="tab2" href="/newWishList">
             <IonIcon aria-hidden="true" icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
+            <IonLabel>New Wish List</IonLabel>
           </IonTabButton>
           <IonTabButton tab="profile" href="/profile">
             <IonIcon aria-hidden="true" icon={square} />
