@@ -35,12 +35,14 @@ import {
   settingsOutline, 
   trashOutline 
 } from 'ionicons/icons';
+import { OverlayEventDetail } from '@ionic/core/components';
 import './WishList.css';
 import WishItem from '../components/WishItem';
 
 const WishList: React.FC = () => {
   const page = useRef(null);
   const createNewItemModal = useRef<HTMLIonModalElement>(null);
+  const itemDetailsModal = useRef<HTMLIonModalElement>(null);
 
   const [presentingElement, setPresentingElement] = useState<HTMLElement | null>(null);
 
@@ -83,6 +85,10 @@ const WishList: React.FC = () => {
     createNewItemModal.current?.dismiss();
   }
 
+  function dismissItemDetailsModal() {
+    itemDetailsModal.current?.dismiss();
+  }
+
   return (
     <IonPage ref={page}>
       <IonHeader>
@@ -122,6 +128,7 @@ const WishList: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         {newWishItemButton}
+        <IonButton id="open-details-modal" expand="block">Open details modal</IonButton>
         <IonGrid>
           <IonRow className='ion-justify-content-center'>
             {listData}
@@ -189,6 +196,59 @@ const WishList: React.FC = () => {
               </IonList>
               <IonButton expand="block" className='btn-login'>Add new item</IonButton>
             </form>
+          </IonContent>
+        </IonModal>
+        <IonModal ref={itemDetailsModal} trigger="open-details-modal">
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => itemDetailsModal.current?.dismiss()}>Cancel</IonButton>
+              </IonButtons>
+              <IonTitle>Welcome</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong={true} onClick={() => confirm()}>
+                  Confirm
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <div className='wish-item-details-hero'>
+              <img alt='Picture' src='https://images.pexels.com/photos/2005992/pexels-photo-2005992.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' className='wish-item-details-img'/>
+              <h3>Rolki super duper extra</h3>
+            </div>
+            <IonList>
+              <IonItem>
+                <IonLabel>
+                  <h3>Name</h3>
+                  <p>Rolki super duper ekstra</p>
+                </IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>
+                  <h3>Price</h3>
+                  <p>300 DKK</p>
+                </IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>
+                    <h3>Currency</h3>
+                    <p>🇩🇰 Danish Krone</p>
+                  </IonLabel>
+                </IonItem>
+              <IonItem>
+                <IonLabel>
+                  <h3>Notes</h3>
+                  <p>Nothing special</p>
+                </IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>
+                  <h3>Link to the product</h3>
+                  <p><a href='https://ionicframework.com/docs/api/select#responding-to-interaction'>ionicframework.com/docs/api/select#responding-to-interaction'</a></p>
+                </IonLabel>
+              </IonItem>
+            </IonList>
           </IonContent>
         </IonModal>
       </IonContent>
