@@ -3,9 +3,10 @@ import
   { 
     useState, 
     useRef, 
-    useEffect 
+    useEffect,
   } 
 from 'react';
+import { useHistory } from 'react-router-dom';
 import { 
   IonButton,
   IonButtons,
@@ -19,8 +20,10 @@ import {
   IonPage, 
   IonTitle, 
   IonToolbar,
-  IonFooter 
+  IonFooter,
+  IonIcon,
 } from '@ionic/react';
+import { eye, eyeOff } from 'ionicons/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 
@@ -29,12 +32,33 @@ import './Start.css';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../firebaseConfig';
+import { Redirect } from 'react-router';
+
 const Start: React.FC = () => {
   const page = useRef(null);
   const loginModal = useRef<HTMLIonModalElement>(null);
   const registrationModal = useRef<HTMLIonModalElement>(null);
 
+  const [isLoginPassVisible, setIsLoginPassVisible] = useState<boolean>(false);
+  const [isRegistrationPassVisible, setIsRegistrationPassVisible] = useState<boolean>(false);
+
+  const history = useHistory();
+
   const [presentingElement, setPresentingElement] = useState<HTMLElement | null>(null);
+
+  //Login user data variables 
+  const [userName, setUserName] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [userPassword, setUserPassword] = useState<string>('');
+
+  //Sign up user data variables
+  const [newUserEmail, setNewUserEmail] = useState<string>('');
+  const [newUserPassword, setNewUserPassword] = useState<string>('');
+  const [newUserEmailErrorMessage, setNewUserEmailErrorMessage] = useState<string>('');
+  const [newUserPasswordErrorMessage, setNewUserPasswordErrorMessage] = useState<string>('');
+
 
   const onboardingData = [
     {
@@ -64,8 +88,66 @@ const Start: React.FC = () => {
     )
   });
 
+  //console.log(`User name: ${newUserName}`);
+  //console.log(`User email: ${newUserEmail}`);
+  console.log(`User pass: ${newUserPassword}`);
+
+  async function newEmailValidation(errorMsg: string){
+    if(errorMsg == 'Firebase: Error (auth/invalid-email).'){
+      setNewUserEmailErrorMessage("Email is invalid. Please, try again!");
+      console.log(newUserEmailErrorMessage);
+    } else if(errorMsg == 'Firebase: Error (auth/email-already-exists).'){
+      setNewUserEmailErrorMessage("Account with this email already exists. Try another one!");
+      console.log(newUserEmailErrorMessage);
+    }
+  }
+
+
+  async function registerNewUser(e: React.FormEvent<HTMLFormElement>){
+    e.preventDefault();
+
+    createUserWithEmailAndPassword(auth, newUserEmail, newUserPassword)
+    .then(userCredential => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        history.push('/');
+    })
+    .catch(error => {
+        console.log(error);
+        console.log(error.message);
+        newEmailValidation(error.message);
+    });
+  }
+
+  async function signInUser(e: React.FormEvent<HTMLFormElement>){
+    e.preventDefault();
+
+    signInWithEmailAndPassword(auth, userEmail, userPassword)
+    .then(userCredential => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        history.push('/');
+    })
+    .catch(error => {
+        console.log(error);
+        console.log(error.message);
+        newEmailValidation(error.message);
+    });
+  }
+
+  function displayLoginPass(){
+    setIsLoginPassVisible(!isLoginPassVisible);
+  }
+
+  function displayRegistrationPass(){
+    setIsRegistrationPassVisible(!isRegistrationPassVisible);
+  }
+  
   useEffect(() => {
     setPresentingElement(page.current);
+    
   }, []);
 
   function dismissLoginModal() {
@@ -115,7 +197,7 @@ const Start: React.FC = () => {
               <span className='login-divider-text'>or</span>
               <span className='line'></span>
             </div>
-            <form>
+            <form onSubmit={signInUser}>
               <IonList>
                 <IonItem>
                   <IonInput 
@@ -125,21 +207,26 @@ const Start: React.FC = () => {
                     fill="solid" 
                     placeholder="Enter your e-mail"
                     class="input"
+                    onIonChange={(e: any) => setUserEmail(e.target.value)}
                   ></IonInput>
                 </IonItem>
                 <IonItem>
                   <IonInput 
                     label="Password" 
                     labelPlacement="floating" 
-                    type='password'
+                    type={isLoginPassVisible ? 'text' : 'password'}
                     fill="solid" 
                     placeholder="Enter your password"
                     class="input"
+                    onIonChange={(e: any) => setUserPassword(e.target.value)}
                   ></IonInput>
+                  <div onClick={displayLoginPass} className='hide-pass-btn'>
+                    {isLoginPassVisible ? <IonIcon aria-hidden="true" icon={eyeOff} size="large"/> : <IonIcon aria-hidden="true" icon={eye} size="large"/>}
+                  </div>
                 </IonItem>
               </IonList>
               <a href='#' className=''>Forget your password?</a>
-              <IonButton expand="block" className='btn-login'>Login</IonButton>
+              <IonButton type="submit" expand="block" className='btn-login'>Login</IonButton>
             </form>
             <a href='#' className=''>Don’t have an account yet? <span>Join us!</span></a>
           </IonContent>
@@ -161,39 +248,41 @@ const Start: React.FC = () => {
               <span className='login-divider-text'>or</span>
               <span className='line'></span>
             </div>
-            <form>
+            <form onSubmit={registerNewUser}>
               <IonList>
                 <IonItem>
                   <IonInput 
-                    label="Name" 
-                    labelPlacement="floating" 
-                    fill="solid" 
-                    placeholder="Enter your your name"
-                    class="input"
-                  ></IonInput>
-                </IonItem>
-                <IonItem>
-                  <IonInput 
                     label="E-mail"
-                    type='email' 
+                    type='text' 
                     labelPlacement="floating" 
                     fill="solid" 
                     placeholder="Enter your e-mail"
                     class="input"
+                    errorText={newUserEmailErrorMessage}
+                    value={newUserEmail}
+                    onIonChange={(e: any) => setNewUserEmail(e.target.value)}
                   ></IonInput>
                 </IonItem>
                 <IonItem>
                   <IonInput 
                     label="Password" 
                     labelPlacement="floating" 
-                    type='password'
+                    type={isRegistrationPassVisible ? 'text' : 'password'}
                     fill="solid" 
                     placeholder="Enter your password"
                     class="input"
+                    value={newUserPassword}
+                    onIonChange={(e: any) => {
+                      console.log(`Password in onIonChange: ${e.target.value}`);
+                      setNewUserPassword(e.target.value);
+                    }}
                   ></IonInput>
+                  <div onClick={displayRegistrationPass} className='hide-pass-btn'>
+                    {isRegistrationPassVisible ? <IonIcon aria-hidden="true" icon={eyeOff} size="large"/> : <IonIcon aria-hidden="true" icon={eye} size="large"/>}
+                  </div>
                 </IonItem>
               </IonList>
-              <IonButton expand="block" className='btn-login'>Create an account</IonButton>
+              <IonButton type="submit" expand="block" className='btn-login'>Create an account</IonButton>
             </form>
             <a href='#' className=''>Already have an account? <span>Login!</span></a>
           </IonContent>
